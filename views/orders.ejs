@@ -1,0 +1,53 @@
+<%- include("partials/header") -%>
+<%- include("navbar") -%>
+
+<div class="container">
+    <h4 class="fw-bold">Pending Orders</h4>
+    <ul class="list-unstyled">
+        <% if (orderList) { %>
+            <% orderList.forEach(function (order) { %>
+
+                <% let dateAndTime = ''; %>
+                <% if (order.createdAt) { %>
+                    <% const createdAt = new Date(order.createdAt); %>
+                    <% const formattedDate = createdAt.toLocaleDateString(); // Format the date as needed %>
+                    <% const formattedTime = createdAt.toLocaleTimeString(); // Format the time as needed %>
+                    <% dateAndTime = formattedTime + ', ' + formattedDate; %>
+                <% } %>
+
+                <li class="p-4">
+                    <div class="d-flex flex-column flex-lg-row gap-3 align-items-start align-items-lg-center py-3 text-decoration-none p-0 border-top">
+                        <img class="col bd-placeholder-img img-fluid img-thumbnail" height="100%"  aria-hidden="true" preserveAspectRatio="xMidYMid slice" focusable="false" src="/img/<%= order.item_id.image.data %>" alt="img">
+
+                        <div class="row col">
+                            <h5 class="mb-0"><%= order.name %></h5>
+                            <div class=""><span class="">Ordered on: </span><small class="text-body-secondary"><%= dateAndTime %></small></div>
+                            <div class=""><span class="">Phone: </span><small class="text-body-secondary"><%= order.phone %></small></div>
+                            <div class=""><span class="">City: </span><small class="text-body-secondary"><%= order.city %></small></div>
+                            <div class=""><span class="">Zip: </span><small class="text-body-secondary"><%= order.zip %></small></div>
+                            <div class=""><span class="">Nearby: </span><small class="text-body-secondary"><%= order.nearby %></small></div>
+
+                            <div class="mt-2"><h6 class="mb-0">Item details : </h6></div>
+                            <div class=""><span class="">Ordered Item name: </span><small class="text-body-secondary"><%= order.item_id.name %></small></div>
+                            <div class=""><span class="">Item Price: </span><small class="text-body-secondary"><%= order.item_id.price %> ₹</small></div>
+                            <!-- <div class=""><span class="">Item Description: </span><small class="text-body-secondary"><%= order.item_id.description %></small></div> -->
+                        </div>
+                    </div>
+
+                    <form class="item" action="/admin/orders/delete" method="POST">
+                        <button class="btn btn-secondary" id="<%= order._id %>" type="submit" name="order_id"
+                            value="<%= order._id %>">
+                            Delete Order
+                        </button>
+                    </form>
+                </li>
+            <% }); %>
+        <% } else { %>
+            <h1>No Items for sale </h1>
+        <% } %>
+    </ul>
+</div>
+
+
+
+<%- include("partials/footer") -%>

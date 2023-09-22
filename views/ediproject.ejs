@@ -1,0 +1,143 @@
+<%- include("partials/header") -%>
+<%- include("navbar") -%>
+<div class="container my-5 pt-3">
+    <% if(item){ %>
+
+        <!-- need to redesign the whole form for validation by adding and removing the class (compare with project.ejs) -->
+        <form class="needs-validation" action="/editproject" enctype="multipart/form-data" method="post" novalidate>
+
+            <!-- <div class="form-row"> -->
+                <img class="bd-placeholder-img card-img-top img-fluid" src="/img/<%= item.image.data %>" role="img" alt="<%= item.image.data %>">
+
+                <div class="input-group mt-3">
+                    <span class="input-group-text" id="basic-addon1">Change Image ?</span>
+                    <input type="file" id="myFile" name="imgfile" class="form-control" placeholder="Project name" aria-label="Username" aria-describedby="basic-addon1">
+                </div>
+
+                <div class="col-md-4 input-group mt-3 ">
+                    <span class="input-group-text" id="basic-addon1">Name</span>
+                    <input type="text" name="name" class="form-control" id="validationCustom01" aria-describedby="basic-addon1"  value="<%= item.name %>" placeholder="<%= item.name %>" required>
+                    <div class="invalid-feedback">
+                        Please enter name.
+                    </div>
+                    <div class="valid-feedback">
+                        Looks good!
+                    </div>
+                </div>
+
+                <div class="col-md-4 input-group mt-3 ">
+                    <span class="input-group-text" id="basic-addon1">Description</span>
+                    <textarea class="form-control" name="description" id="validationTextarea" placeholder="Required example textarea" placeholder="<%= item.description %>" required><%= item.description %></textarea>
+                    <div class="invalid-feedback">
+                        Please enter name.
+                    </div>
+                    <div class="valid-feedback">
+                        Looks good!
+                    </div>
+                </div>
+
+                <div class="col-md-4 input-group mt-3 ">
+                    <span class="input-group-text" id="basic-addon1">Price</span>
+                    <input type="text" name="price" class="form-control" id="validationCustom01" aria-describedby="basic-addon1"  value="<%= item.price %>" placeholder="<%= item.price %>" required>
+                    <div class="invalid-feedback">
+                        Please enter price.
+                    </div>
+                    <div class="valid-feedback">
+                        Looks good!
+                    </div>
+                </div>
+
+                <div class="col-md-4 input-group mt-3 ">
+                    <span class="input-group-text" id="basic-addon1">Time needed</span>
+                    <input type="text" name="time" class="form-control" id="validationCustom01" aria-describedby="basic-addon1"  value="<%= item.timeneeded %>" placeholder="<%= item.timeneeded %>" required>
+                    <div class="invalid-feedback">
+                        Please enter timeneeded.
+                    </div>
+                    <div class="valid-feedback">
+                        Looks good!
+                    </div>
+                </div>
+
+                <div class="col-md-4 input-group mt-3 ">
+                    <span class="input-group-text" id="basic-addon1">Video link</span>
+                    <input type="text" name="link" class="form-control" id="validationCustom01" aria-describedby="basic-addon1"  value="<%= item.link %>" placeholder="<%= item.link %>" required>
+                    <div class="invalid-feedback">
+                        Please enter video link.
+                    </div>
+                    <div class="valid-feedback">
+                        Looks good!
+                    </div>
+                </div>
+                    
+            <!-- </div> -->
+            
+
+            <div class="d-flex justify-content-between py-3 border-bottom">
+                <a href="javascript:window.history.back()" class="btn btn-sm  mr-5 px-5 btn-outline-secondary">Back</a>
+                <button class="btn btn-secondary" id="<%= item._id %>" type="submit" name="item_id" value="<%= item._id %>">
+                    Edit Project
+                </button>
+            </div>
+        
+        </form>
+
+        <form class="d-flex mt-5 pb-5 justify-content-center" action="/admin/projects/delete" method="POST">
+            <button class="btn align-items-between btn-secondary" id="<%= item._id %>" type="submit" name="item_id" value="<%= item._id %>">
+                Delete Project
+            </button>
+        </form>
+    <% }else{ %>
+        <h1>Project details not available.</h1>
+    <% } %>
+</div>
+
+
+<% if(message){ %>
+    <script>
+        // Use JavaScript to trigger the modal display
+        document.addEventListener("DOMContentLoaded", function () {
+            var modal = new bootstrap.Modal(document.querySelector(".modal"));
+            modal.show();
+        });
+    </script>
+    <div class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Message</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p><%= message %></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                </div>
+            </div>
+        </div>
+    </div>
+<% } %>
+
+<script>
+    (function () {
+        'use strict';
+        window.addEventListener('load', function () {
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.getElementsByClassName('needs-validation');
+            // Loop over them and prevent submission
+            var validation = Array.prototype.filter.call(forms, function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+
+
+<%- include("partials/footer") -%>
