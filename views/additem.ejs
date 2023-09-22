@@ -1,0 +1,80 @@
+<%- include("partials/header") -%>
+<%- include("navbar") -%>
+
+<!-- <form action="/alogout" method="post">
+    <button>
+        logout
+    </button>
+</form> -->
+<div class="container mt-5 pt-4">
+    <form class="needs-validation" action="/additem" method="post" enctype="multipart/form-data" novalidate>
+        
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">Name</span>
+            <input type="text" class="form-control" placeholder="Project name" aria-label="Username" aria-describedby="basic-addon1" id="name" name="name" required>
+            <div class="invalid-feedback">Enter project name</div>
+        </div>
+        
+        <div class="input-group mb-3">
+            <span class="input-group-text">Description</span>
+            <textarea class="form-control" aria-label="With textarea" name="description" id="description" required></textarea>
+            <div class="invalid-feedback">Enter description</div>
+        </div>
+        
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">Price</span>
+            <input type="number" id="price" name="price" class="form-control" placeholder="Price" aria-label="Username" aria-describedby="basic-addon1" required>
+            <div class="invalid-feedback">Enter price</div>
+        </div>
+        
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">Time needed</span>
+            <input type="text" id="time" name="time" class="form-control" placeholder="Time needed" aria-label="Username" aria-describedby="basic-addon1" required>
+            <div class="invalid-feedback">Enter time needed.</div>
+        </div>
+        
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">Image</span>
+            <input type="file" id="myFile" name="imgfile" class="form-control" placeholder="Project name" aria-label="Username" aria-describedby="basic-addon1" required>
+            <div class="invalid-feedback">Choose image.</div>
+        </div>
+        
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">Video link</span>
+            <input type="text" id="link" name="link" class="form-control" placeholder="Project video link" aria-label="Username" aria-describedby="basic-addon1" required>
+            <div class="invalid-feedback">Enter video link.</div>
+        </div>
+    
+        <button type="submit" class="btn btn-secondary">Submit</button>
+        <button type="reset" class="btn btn-outline-secondary ml-2">Reset</button>
+    </form>
+
+    <div class="container d-flex justify-content-end">
+        <a href="/admin" class="btn btn-outline-dark ml-5">Cancel</a>
+    </div>
+
+    <br>
+    <p><%= message %></p>
+</div>
+
+<script>
+    (function () {
+        'use strict';
+        window.addEventListener('load', function () {
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.getElementsByClassName('needs-validation');
+            // Loop over them and prevent submission
+            var validation = Array.prototype.filter.call(forms, function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+
+<%- include("partials/footer") -%>

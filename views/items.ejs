@@ -1,0 +1,22 @@
+<% if(itemList){ %>
+    <% itemList.forEach(function(item){ %>
+    <div class="col">
+        <div class="card shadow-sm">
+                <img class="bd-placeholder-img card-img-top" width="100%" height="225" src="img/<%= item.image.data %>" role="img" alt="<%= item.image.data %>">
+            <div class="card-body">
+                <p class="card-text"><%= item.name %></p>
+                <p class="card-text description-overflow"><%= item.description %></p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="btn-group">
+                        <a href="/projects/<%= item.name %>" class="btn btn-sm btn-outline-secondary">Details</a>
+                    </div>
+                    <small class="text-body-secondary">Price : <span class="fw-bold"> <%= item.price %>₹ </span></small>
+                    <small class="text-body-secondary">Time: <span class="fw-bold"> <%= item.timeneeded %> </span></small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% }); %>
+<% }else{ %>
+    <h1>No Items for sale </h1>
+<% } %>
