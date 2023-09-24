@@ -1,11 +1,57 @@
 <%- include("partials/header") -%>
 <%- include("navbar") -%>
 
+<div class="container">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+            <div class="collapse navbar-collapse d-flex justify-content-evenly" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <form action="/subject" method="post" class="container">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Subjects
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item btn" type="submit" name="subject" href="/home">All</a></li>
+                                <li><button class="dropdown-item" type="submit" name="subject" value="Electronics">Electronics</button></li>
+                                <li><button class="dropdown-item" type="submit" name="subject" value="WebDev">Web develoment</button></li>
+                                <li><button class="dropdown-item" type="submit" name="subject" value="ML">Machine Learning</button></li>
+                            </ul>
+                        </li>
+                    </form>
+                    <form action="/grade" method="post" class="container">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Grade
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item btn" type="submit" name="subject" href="/home">All</a></li>
+                                <li><button class="dropdown-item" type="submit" name="grade" value="UG">Undergrad</button></li>
+                                <li><button class="dropdown-item" type="submit" name="grade" value="PG">Postgrad</button></li>
+                                <li><button class="dropdown-item" type="submit" name="grade" value="PHD">PHD</button></li>
+                            </ul>
+                        </li>
+                    </form>
+                </ul>
+                <!-- <form class="d-flex" role="search" action="subject" method="post">
+                    <input class="form-control me-2" type="search" name="subject" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Subject</button>
+                </form>
+                <form class="d-flex" role="search" action="grade" method="post">
+                    <input class="form-control me-2" type="search" name="grade" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Grade</button>
+                </form> -->
+            </div>
+        </div>
+    </nav>
+</div>
+
 <div class="album my-3 py-5">
     <div class="container">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
 
             <!-- <%- include("items") -%> -->
+            <% console.log(itemList) %>
 
             <% if(itemList.length != 0){ %>
                 <% itemList.forEach(function(item){ %>
@@ -19,15 +65,15 @@
                                     <div class="btn-group">
                                         <a href="/projects/<%= item._id %>" class="btn btn-sm btn-outline-secondary">Details</a>
                                     </div>
-                                    <small class="text-body-secondary">Price : <span class="fw-bold"> <%= item.price %>₹ </span></small>
-                                    <small class="text-body-secondary">Time: <span class="fw-bold"> <%= item.timeneeded %> </span></small>
+                                    <small class="text-body-secondary">College : <span class="fw-bold"> <%= item.college %> </span></small>
+                                    <small class="text-body-secondary">Date: <span class="fw-bold"> <%= new Date(item.createdAt).toLocaleDateString() %> </span></small>
                                 </div>
                             </div>
                         </div>
                     </div>
                 <% }); %>
             <% }else{ %>
-                <h1>No Items for sale </h1>
+                <h1>No Items available </h1>
             <% } %>
 
         </div>

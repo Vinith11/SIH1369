@@ -5,10 +5,11 @@
     <div class="p-5 my-5 bg-body-secondary rounded-3">
         <div class="container-fluid py-5">
             <h1 class="display-5 fw-bold">Cattelog</h1>
-            <p class="col-md-8 fs-4">Projects for sale : <%= itemList.length %> </p>
-            <p class="col-md-8 fs-4">Orders pending : <%= orderList.length %></p>
+            <p class="col-md-8 fs-4">Number of Projects : <%= itemList.length %> </p>
+            <!-- <p class="col-md-8 fs-4">Orders pending : <%= orderList.length %></p> -->
             <!-- <p class="col-md-8 fs-4">Orders completed : </p> -->
-            <a href="/admin/orders" class="btn btn-secondary btn-lg"  type="button">Check orders</a>
+            <!-- <a href="/admin/orders" class="btn btn-secondary btn-lg"  type="button">Check orders</a> -->
+            <a href="/home" class="btn btn-secondary btn-lg"  type="button">Home page</a>
         </div>
     </div>
 </div>
@@ -31,8 +32,9 @@
                                 <div class="btn-group">
                                     <a href="/admin/projects/<%= item._id %>" class="btn btn-sm btn-outline-secondary">Details</a>
                                 </div>
-                                <small class="text-body-secondary">Price : <span class="fw-bold"> <%= item.price %>₹ </span></small>
-                                <small class="text-body-secondary">Time: <span class="fw-bold"> <%= item.timeneeded %> </span></small>
+                                <!-- <small class="text-body-secondary">Price : <span class="fw-bold"> <%= item.price %>₹ </span></small> -->
+                                <small class="text-body-secondary">College: <span class="fw-bold"> <%= item.college %> </span></small>
+                                <small class="text-body-secondary">Date: <span class="fw-bold"> <%= new Date(item.createdAt).toLocaleDateString() %> </span></small>
                             </div>
                         </div>
                     </div>
