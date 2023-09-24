@@ -22,12 +22,14 @@ const User = require("./models/user");
 const Admin = require("./models/admin");
 const Item = require("./models/item");
 const Order = require("./models/order");
+const Collab = require("./models/collab");
 
 
 const defaultUsers = require("./defaultItemsInDB/users");
 const defaultAdmins = require("./defaultItemsInDB/admins");
 const defaultItems = require("./defaultItemsInDB/items");
 const defaultOrders = require("./defaultItemsInDB/orders");
+const items = require("./defaultItemsInDB/items");
 
 // const MongoURI = 'mongodb://127.0.0.1:27017/techsolution';
 const MongoURI = process.env.MONGO_URI;
@@ -95,19 +97,10 @@ const isAuth = (req, res, next) => {
     }
 }
 
-app.get("/", function (req, res) {
-    Item.find({})
-        .then(function (itemList) {
-            if (itemList.length === 0) {
-                console.log("No items found");
-                res.render("home", { itemList });
-            } else {
-                res.render("home", { itemList });
-            }
-        })
-        .catch((error) => {
-            console.log("Error finding item : " + error);
-        });
+
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something went wrong!');
 });
 
 function insertDefaultAdmins() {
@@ -120,6 +113,11 @@ function insertDefaultAdmins() {
             console.log("Error inserting array of admin objects : " + error);
         });
 }
+
+app.get("/", function (req, res) {
+    console.log('hello');
+    res.render('loginSelect')
+});
 
 app.get("/alogin", function (req, res) {
     Admin.find({})
@@ -166,7 +164,103 @@ app.post("/alogin", function (req, res) {
 
 });
 
+function insertDefaultUsers() {
+    // insertMany admins
+    for (let user in defaultUsers) {
+        console.log(defaultUsers[user]);
+        if (defaultUsers[user].college_id === null) {
+            const college = defaultUsers[user].college;
+            Admin.findOne({ name: college })
+                .then((foundCollege) => {
+                    defaultUsers[user].college_id = foundCollege._id;
+                    console.log("assigned college id to user");
+                })
+                .catch((err) => {
+                    console.log("Error assigning college id : ", err);
+                })
+        }
+    }
+
+    // console.log(defaultUsers);
+
+    User.insertMany(defaultUsers)
+        .then(() => {
+            console.log("Successfully inserted user objects.");
+        })
+        .catch((error) => {
+            console.log("Error inserting array of user objects : " + error);
+        });
+}
+
+app.get("/slogin", function (req, res) {
+    User.find({})
+        .then(function (userList) {
+            if (userList.length === 0) {
+                insertDefaultUsers();
+                res.redirect("/slogin");
+            } else {
+                console.log(userList[0]);
+                res.render("slogin", { message: "" });
+            }
+        })
+        .catch((error) => {
+            console.log("Error finding admins: " + error);
+        });
+});
+
+app.post("/slogin", function (req, res) {
+    const uname = req.body.name;
+    const password = req.body.password;
+
+    User.findOne({ name: uname })
+        .then(function (foundUser) {
+            if (!foundUser) {
+                console.log("user not found");
+                res.render("slogin", { message: "Wrong username or password" });
+            } else {
+                console.log("Found user");
+                if (foundUser.password == password) {
+                    console.log("student varified");
+                    req.session.isAuth = true;
+                    req.session.user = foundUser;
+                    res.redirect("/home");
+                }
+                else {
+                    // console.log("wrong password : " + password);
+                    res.render("slogin", { message: "Wrong username or password" });
+                }
+            }
+        })
+        .catch((err) => {
+            console.log("Error finding user by name : " + err);
+        });
+
+});
+
+app.get("/home", isAuth, function (req, res) {
+    Item.find({})
+        .then(function (itemList) {
+            if (itemList.length === 0) {
+                console.log("No items found");
+                res.render("home", { itemList });
+            } else {
+                res.render("home", { itemList });
+            }
+        })
+        .catch((error) => {
+            console.log("Error finding item : " + error);
+        });
+});
+
 app.get("/admin", isAuth, function (req, res) {
+
+    if (req.session.user.role != 'admin') {
+        // It's not an Admin
+        console.log("Unknown user type is logged in");
+        console.log(req.session.user);
+        res.redirect('/');
+    }
+
     Item.find({})
         .then(function (itemList) {
             Order.find({})
@@ -186,11 +280,46 @@ app.get("/additem", isAuth, function (req, res) {
     res.render("additem", { message: "Add new item details." });
 });
 
+function addCollab(item, usn) {
+    User.findOne({ usn: usn })
+        .then((foundUser) => {
+            if (!foundUser) {
+                console.log("No user found for collab");
+            } else {
+                Item.findOne({ name: item.name })
+                    .then((foundItem) => {
+                        const collab = new Collab({
+                            student_id: foundUser._id,
+                            item_id: foundItem._id
+                        });
+                        collab.save()
+                            .then(() => {
+                                console.log("Collab with item saved successfully");
+                            })
+                            .catch((err) => {
+                                console.log("Error creating a collab with item", err);
+                            });
+                    })
+                    .catch((err) => {
+                        console.log("Error finding item details for collab ", err);
+                    });
+            }
+        })
+        .catch((err) => {
+            console.log("Error finding user for collab, ", err);
+        })
+
+
+}
+
 app.post("/additem", upload, function (req, res) {
     const name = req.body.name;
     const description = req.body.description;
-    const price = req.body.price;
-    const time = req.body.time;
+    // const price = req.body.price;
+    // const time = req.body.time;
+    const subject = req.body.subject;
+    const studentUSN = req.body.student;
+    const college = req.body.college;
     const imgFile = req.file;
     let link = req.body.link;
 
@@ -205,38 +334,58 @@ app.post("/additem", upload, function (req, res) {
         return;
     }
 
-    const item = new Item({
-        name: name,
-        image: {
-            data: imgFile.filename,
-            ContentType: imgFile.mimetype
-        },
-        description: description,
-        timeneeded: time,
-        price: price,
-        link: link
-    });
+    Admin.findOne({ name: college })
+        .then((foundCollege) => {
+            const item = new Item({
+                name: name,
+                image: {
+                    data: imgFile.filename,
+                    ContentType: imgFile.mimetype
+                },
+                description: description,
+                college: college,
+                // price: price,
+                subject: subject,
+                college_id: foundCollege._id,
+                link: link
+            });
 
-    Item.findOne({ name: name })
-        .then(function (foundItem) {
-            if (!foundItem) {
-                console.log("Similar item not found.");
-                item.save()
-                    .then(() => {
-                        console.log("Item saved Successfully : " + item);
-                        res.redirect("/admin");
-                    })
-                    .catch((error) => {
-                        console.log("Error saving Item : " + error);
-                    });
-            } else {
-                console.log("Similar item has been found and you will be redirected to additem page.");
-                res.render("additem", { message: "Similar item has been found and you will be redirected to additem page." })
-            }
+            console.log("College_id assigned to project");
+
+            Item.findOne({ name: name })
+                .then(function (foundItem) {
+                    if (!foundItem) {
+                        console.log("Similar item not found.");
+                        console.log(item);
+                        item.save()
+                            .then(() => {
+                                console.log("Item saved Successfully : " + item);
+                                res.redirect("/admin");
+                            })
+                            .catch((error) => {
+                                console.log("Error saving Item : " + error);
+                            });
+
+                        addCollab(item, studentUSN)
+                            .then(() => {
+                                console.log("Collaboration complete.");
+                            })
+                            .catch((err) => {
+                                console.log("Error creating collaboration, ", err);
+                            });
+                    } else {
+                        console.log("Similar item has been found and you will be redirected to additem page.");
+                        res.render("additem", { message: "Similar item has been found and you will be redirected to additem page." })
+                    }
+                })
+                .catch((err) => {
+                    console.log("Error finding similar items : " + err);
+                });
         })
         .catch((err) => {
-            console.log("Error finding similar items : " + err);
-        });
+            console.log("Error assigning college_id to projects.", err);
+        })
+
 });
 
 app.post("/admin/projects/delete", function (req, res) {
@@ -481,6 +630,65 @@ app.post("/projects/contact", function (req, res) {
 
 });
 
+app.post('/grade', async function (req, res) {
+    const grade = req.body.grade;
+
+    let proj = [];
+
+    try {
+        const foundUsers = await User.find({ grade: grade });
+        
+        if (!foundUsers || foundUsers.length === 0) {
+            console.log("No users found with this grade.");
+            return res.render('home', { itemList: proj });
+        }
+
+        for (let user of foundUsers) {
+            const foundCollabs = await Collab.find({ student_id: user._id });
+
+            if (!foundCollabs || foundCollabs.length === 0) {
+                console.log("No collaborations found for user with grade: " + grade);
+                continue;
+            }
+
+            for (let collab of foundCollabs) {
+                const foundItems = await Item.find({ _id: collab.item_id });
+
+                if (!foundItems || foundItems.length === 0) {
+                    console.log("No items found for collaboration: " + collab._id);
+                    continue;
+                }
+
+                proj.push(...foundItems);
+            }
+        }
+
+        if (proj.length > 0) {
+            console.log("proj is ready");
+            return res.render('home', { itemList: proj });
+        } else {
+            console.log("No projects found for the given grade and collaborations.");
+            return res.render('home', { itemList: proj });
+        }
+    } catch (error) {
+        console.log("Error in /grade route:", error);
+        return res.status(500).send("Internal Server Error");
+    }
+});
+
+app.post('/subject', function(req, res){
+    const subject = req.body.subject;
+
+    Item.find({subject})
+    .then((foundItems)=>{
+        if(!foundItems){
+            console.log("Items not found while searching with subs");
+        } else {
+            console.log(foundItems);
+            res.render('home', {itemList: foundItems});
+        }
+    })
+})
 
 app.listen(3000, function () {
     console.log("Server is running on port 3000");

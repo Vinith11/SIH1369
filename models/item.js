@@ -19,15 +19,20 @@ const itemSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    timeneeded: {
+    subject: {
         type: String,
         required: true
     },
-    price: {
-        type: Number,
+    college: {
+        type: String,
+        required: true
+    },
+    college_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "admin",
         required: true
     },
     link: String
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model("item", itemSchema);

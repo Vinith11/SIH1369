@@ -1,26 +1,35 @@
 const mongoose = require("mongoose");
-
 const User = require("../models/user");
 
-
-//users
+// Create user instances
 const user1 = new User({
-    name: "Jayesh",
-    email: "jayeshuramanatti@gmail.com",
-    phone: 1234567890,
-    password: "Jayesh2003"
+    name: 'Shreyas',
+    usn: '2GI21IS054',
+    college_id: null,
+    college: 'GIT',
+    grade: 'UG',
+    role: "user",
+    password: 'Shreyas2003'
 });
+
 const user2 = new User({
-    name: "Amey",
-    email: "ameychougule@gmail.com",
-    phone: 1234567890,
-    password: "Amey2002"
+    name: "Abhilesh",
+    usn: '2GI21CS002',
+    college_id: null,
+    college: 'GIT',
+    grade: 'PG',
+    role: "user",
+    password: "Abhilesh2003"
 });
+
 const user3 = new User({
-    name: "Eshan",
-    email: "eshansettannavar@gmail.com",
-    phone: 1234567890,
-    password: "Eshan2002"
+    name: "Gautami",
+    usn: '2KL21ISO58',
+    college_id: null,
+    college: 'KLE',
+    grade: 'UG',
+    role: "user",
+    password: "Gautami2003"
 });
 
 module.exports = [user1, user2, user3];
