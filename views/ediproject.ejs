@@ -36,6 +36,17 @@
                     </div>
                 </div>
 
+                <div class="col-md-4 input-group mt-3 ">
+                    <span class="input-group-text" id="basic-addon1">Subject</span>
+                    <textarea class="form-control" name="subject" id="validationTextarea" placeholder="Required example textarea" placeholder="<%= item.subject %>" required><%= item.subject %></textarea>
+                    <div class="invalid-feedback">
+                        Please enter subject.
+                    </div>
+                    <div class="valid-feedback">
+                        Looks good!
+                    </div>
+                </div>
+
                 <!-- <div class="col-md-4 input-group mt-3 ">
                     <span class="input-group-text" id="basic-addon1">Price</span>
                     <input type="text" name="price" class="form-control" id="validationCustom01" aria-describedby="basic-addon1"  value="<%= item.price %>" placeholder="<%= item.price %>" required>

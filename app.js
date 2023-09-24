@@ -308,8 +308,6 @@ function addCollab(item, usn) {
         .catch((err) => {
             console.log("Error finding user for collab, ", err);
         })
-
-
 }
 
 app.post("/additem", upload, function (req, res) {
@@ -472,8 +470,8 @@ app.post("/editproject", upload, function (req, res) {
     const itemID = req.body.item_id;
     const name = req.body.name;
     const description = req.body.description;
-    const price = req.body.price;
-    const time = req.body.time;
+    const subject = req.body.subject;
+    const college = req.body.college;
     let link = req.body.link;
 
     const imgFile = req.file;
@@ -501,50 +499,71 @@ app.post("/editproject", upload, function (req, res) {
 
         console.log(image.data, image.ContentType);
 
-        Item.findOneAndUpdate(
-            { _id: itemID },
-            { $set: { name, image, description, timeneeded: time, price, link } },
-            { new: true, runValidators: true } // Add these options
-        )
-            .then((updatedItem) => {
-                console.log("Updated Item with image:", updatedItem);
-
-                if (updatedItem) {
-                    console.log("Item edited with image successfully.");
-                    res.redirect("/admin/projects/" + itemID);
+        Admin.findOne({ name: college })
+            .then((foundCollege) => {
+                if (!foundCollege) {
+                    console.log("No college found for editing name.");
+                    res.redirect("/admin");
                 } else {
-                    console.log("No item found or no changes made with img.");
-                    res.redirect("/admin/projects/" + itemID);
+                    console.log("college found.");
+                    ;
+                    Item.findOneAndUpdate(
+                        { _id: itemID },
+                        { $set: { name, image, description, subject, college, college_id: foundCollege._id, link } },
+                        { new: true, runValidators: true } // Add these options
+                    )
+                        .then((updatedItem) => {
+                            console.log("Updated Item with image:", updatedItem);
+
+                            if (updatedItem) {
+                                console.log("Item edited with image successfully.");
+                                res.redirect("/admin/projects/" + itemID);
+                            } else {
+                                console.log("No item found or no changes made with img.");
+                                res.redirect("/admin/projects/" + itemID);
+                            }
+                        })
+                        .catch((error) => {
+                            console.log("Error while editing Item with image:", error);
+                            res.redirect("/admin/projects/" + itemID);
+                        });
                 }
             })
-            .catch((error) => {
-                console.log("Error while editing Item with image:", error);
-                res.redirect("/admin/projects/" + itemID);
-            });
+
     } else {
 
-        console.log(name, itemID, description, price, time, link);
+        console.log(name, itemID, description, subject, college, link);
 
-        Item.findOneAndUpdate(
-            { _id: itemID },
-            { $set: { name, description, timeneeded: time, price, link } },
-            { new: true, runValidators: true } // Add these options
-        )
-            .then((updatedItem) => {
-                console.log("Updated Item:", updatedItem);
-
-                if (updatedItem) {
-                    console.log("Item edited successfully.");
-                    res.redirect("/admin/projects/" + itemID);
+        Admin.findOne({ name: college })
+            .then((foundCollege) => {
+                if (!foundCollege) {
+                    console.log("No college found for editing name.");
+                    res.redirect("/admin");
                 } else {
-                    console.log("No item found or no changes made.");
-                    res.redirect("/admin/projects/" + itemID);
+                    console.log("college found.");
+                    ;
+                    Item.findOneAndUpdate(
+                        { _id: itemID },
+                        { $set: { name, description, subject, college, college_id: foundCollege._id, link } },
+                        { new: true, runValidators: true } // Add these options
+                    )
+                        .then((updatedItem) => {
+                            console.log("Updated Item with image:", updatedItem);
+
+                            if (updatedItem) {
+                                console.log("Item edited with image successfully.");
+                                res.redirect("/admin/projects/" + itemID);
+                            } else {
+                                console.log("No item found or no changes made with img.");
+                                res.redirect("/admin/projects/" + itemID);
+                            }
+                        })
+                        .catch((error) => {
+                            console.log("Error while editing Item with image:", error);
+                            res.redirect("/admin/projects/" + itemID);
+                        });
                 }
             })
-            .catch((error) => {
-                console.log("Error while editing Item:", error);
-                res.redirect("/admin/projects/" + itemID);
-            });
     }
 
 });
@@ -637,7 +656,7 @@ app.post('/grade', async function (req, res) {
 
     try {
         const foundUsers = await User.find({ grade: grade });
-        
+
         if (!foundUsers || foundUsers.length === 0) {
             console.log("No users found with this grade.");
             return res.render('home', { itemList: proj });
@@ -676,19 +695,37 @@ app.post('/grade', async function (req, res) {
     }
 });
 
-app.post('/subject', function(req, res){
+app.post('/subject', function (req, res) {
     const subject = req.body.subject;
 
-    Item.find({subject})
-    .then((foundItems)=>{
-        if(!foundItems){
-            console.log("Items not found while searching with subs");
-        } else {
-            console.log(foundItems);
-            res.render('home', {itemList: foundItems});
-        }
-    })
+    Item.find({ subject })
+        .then((foundItems) => {
+            if (!foundItems) {
+                console.log("Items not found while searching with subs");
+            } else {
+                console.log(foundItems);
+                res.render('home', { itemList: foundItems });
+            }
+        })
 })
+
+app.post('/college', function(req, res){
+    const college = req.body.college;
+
+    Item.find({ college })
+        .then((foundItems) => {
+            if (!foundItems) {
+                console.log("Items not found while searching with subs");
+            } else {
+                console.log(foundItems);
+                res.render('home', { itemList: foundItems });
+            }
+        })
+});
+
+// app.post('/usn', function(req, res){
+
+// });
 
 app.listen(3000, function () {
     console.log("Server is running on port 3000");
