@@ -1,8 +1,7 @@
 <%- include("partials/header") -%>
 <%- include("navbar") -%>
-<div class="container my-5 pt-3">
+<div class="container mb-5">
     <% if(item){ %>
-
         <!-- need to redesign the whole form for validation by adding and removing the class (compare with project.ejs) -->
         <form class="needs-validation" action="/editproject" enctype="multipart/form-data" method="post" novalidate>
 
@@ -27,7 +26,7 @@
 
                 <div class="col-md-4 input-group mt-3 ">
                     <span class="input-group-text" id="basic-addon1">Description</span>
-                    <textarea class="form-control" name="description" id="validationTextarea" placeholder="Required example textarea" placeholder="<%= item.description %>" required><%= item.description %></textarea>
+                    <textarea class="form-control" name="description" id="validationTextarea" placeholder="<%= item.description %>" placeholder="<%= item.description %>" required><%= item.description %></textarea>
                     <div class="invalid-feedback">
                         Please enter name.
                     </div>
@@ -38,7 +37,7 @@
 
                 <div class="col-md-4 input-group mt-3 ">
                     <span class="input-group-text" id="basic-addon1">Subject</span>
-                    <textarea class="form-control" name="subject" id="validationTextarea" placeholder="Required example textarea" placeholder="<%= item.subject %>" required><%= item.subject %></textarea>
+                    <input class="form-control" name="subject" id="validationTextarea" placeholder="<%= item.subject %>" placeholder="<%= item.subject %>" value="<%= item.subject %>" required>
                     <div class="invalid-feedback">
                         Please enter subject.
                     </div>
@@ -81,7 +80,6 @@
                 </div>
                     
             <!-- </div> -->
-            
 
             <div class="d-flex justify-content-between py-3 border-bottom">
                 <a href="javascript:window.history.back()" class="btn btn-sm  mr-5 px-5 btn-outline-secondary">Back</a>
@@ -89,7 +87,55 @@
                     Edit Project
                 </button>
             </div>
-        
+
+        </form>
+
+        <% if(members){ %>
+            <div class="container border rounded mt-3 d-flex flex-column align-items-center p-2">
+                <h2 class="mb-1">Collaborators</h2>
+                <form class="needs-validation" action="/deletecollaborator" method="post" novalidate>
+                    <input type="text" id="<%= item._id %>" style="display: none;" name="item_id" value="<%= item._id %>">
+                    <% members.forEach(function(member){ %> %>
+                        <div class="container border rounded d-flex flex-column align-items-center py-2 px-5 mt-2">
+                            <div class="d-flex justify-content-between py-3">
+                                <div class="container d-flex align-items-center flex-column">
+                                    <p class="m-0">Name : <%= member.name %></p>
+                                    <p class="m-0">USN : <%= member.usn %></p>
+                                </div>
+                                <div class="d-flex justify-content-end">
+                                    <button class="btn btn-secondary" id="<%= member._id %>" type="submit" name="collab_id" value="<%= member._id %>">
+                                        DeleteCollab
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </form>
+            </div>
+        <% } else { %>
+            <div class="container border rounded">
+                No members found.
+            </div>
+        <% } %>
+
+        <form class="needs-validation" action="/addcollaborator" method="post" novalidate>
+            <div class="col-md-4 input-group mt-3 ">
+                <span class="input-group-text" id="basic-addon1">Collaborator USN</span>
+                <input type="text" name="collabusn" class="form-control" id="validationCustom01" aria-describedby="basic-addon1"  placeholder="USN in Caps" required>
+                <div class="invalid-feedback">
+                    Please enter USN.
+                </div>
+                <div class="valid-feedback">
+                    Looks good!
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end py-3 border-bottom">
+                <button class="btn btn-secondary" type="submit" name="item_id" value="<%= item._id %>">
+                    Add Collaborator
+                </button>
+            </div>
+
         </form>
 
         <form class="d-flex mt-5 pb-5 justify-content-center" action="/admin/projects/delete" method="POST">

@@ -1,37 +1,70 @@
 <%- include("partials/header") -%>
 <%- include("navbar") -%>
 
-    <div class="container mt-5 pt-3">
+    <div class="container pb-4">
         <% if(item){ %>
-            <div class="p-3 shadow-sm">
+            <div class="shadow-sm">
                 <img class="bd-placeholder-img card-img-top img-fluid" src="/img/<%= item.image.data %>" role="img"
                     alt="<%= item.image.data %>">
                 <div class="card-body mt-2">
-                    <p class="card-text fs-3 fw-bold font-monospace">
-                        <%= item.name %>
-                    </p>
-                    <p class="card-text description">
-                        <%= item.description %>
-                    </p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <!-- <div class="btn-group">
-                            <a href="javascript:window.history.back()"
-                                class="btn btn-sm btn-outline-secondary">Back</a>
+                    <div class="container border rounded mt-3 d-flex flex-column p-2">
+                        <p class="card-text fs-3 fw-bold font-monospace text-uppercase">
+                            <%= item.name %>
+                        </p>
+                        <!-- <div class="col-md-4 input-group mt-3 ">
+                            <span class="input-group-text" id="basic-addon1">Name</span>
+                            <input type="text" name="name" class="form-control" id="validationCustom01" aria-describedby="basic-addon1"  value="<%= item.name %>" placeholder="<%= item.name %>" disabled>
                         </div> -->
-                        <!-- <small class="text-body-secondary">Price: <span class="fw-bold">
-                                <%= item.price %>₹
-                            </span></small> -->
-                        <small class="text-body-secondary">College: <span class="fw-bold">
-                                <%= item.college %>
-                            </span></small>
+                        <!-- <p class="card-text description">
+                            <span class="fw-bold">Description :</span>
+                            <%= item.description %>
+                        </p> -->
+                        <div class="col-md-4 input-group mt-3 ">
+                            <span class="input-group-text" id="basic-addon1">Description</span>
+                            <textarea type="text" name="description" class="form-control" id="validationCustom01" aria-describedby="basic-addon1"  value="<%= item.description %>" placeholder="<%= item.description %>" disabled><%= item.description %></textarea>
+                        </div>
+                        <!-- <p class="card-text description">
+                            <span class="fw-bold">Subject : </span><%= item.subject %>
+                        </p> -->
+                        <div class="col-md-4 input-group mt-3 ">
+                            <span class="input-group-text" id="basic-addon1">Subject</span>
+                            <input type="text" name="subject" class="form-control" id="validationCustom01" aria-describedby="basic-addon1"  value="<%= item.subject %>" placeholder="<%= item.subject %>" disabled>
+                        </div>
+                        <!-- <p class="card-text description">
+                            <span class="fw-bold">College : </span><%= item.college %>
+                        </p> -->
+                        <div class="col-md-4 input-group mt-3 ">
+                            <span class="input-group-text" id="basic-addon1">College</span>
+                            <input type="text" name="college" class="form-control" id="validationCustom01" aria-describedby="basic-addon1"  value="<%= item.college %>" placeholder="<%= item.college %>" disabled>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
                             <% if(item.link != null){ %>
                                 <a href="<%= item.link %>" class="btn btn-outline-secondary fw-bold" target="_blank"> Git Hub </a>
                             <%}%>
+                            
+                            <div class="btn-group">
+                                <a href="javascript:window.history.back()"
+                                    class="btn btn btn-outline-secondary">Back</a>
+                            </div>
+                        </div>
                     </div>
-                    <div class="btn-group mt-3">
-                        <a href="javascript:window.history.back()"
-                            class="btn btn-sm btn-outline-secondary">Back</a>
-                    </div>
+                    <% if(members){ %>
+                        <div class="container border rounded mt-3 d-flex flex-column align-items-center p-2">
+                            <h2 class="mb-1">Collaborators</h2>
+                            <% members.forEach(function(member){ %> %>
+                                <div class="container border rounded d-flex flex-column align-items-center py-2 px-5 mt-2">
+                                    <div class="container d-flex align-items-center flex-column">
+                                        <p class="m-0">Name : <%= member.name %></p>
+                                        <p class="m-0">USN : <%= member.usn %></p>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <div class="container border rounded">
+                            No members found.
+                        </div>
+                    <% } %>
                 </div>
             </div>
         <% }else{ %>

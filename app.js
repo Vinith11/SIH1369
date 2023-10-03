@@ -30,6 +30,7 @@ const defaultAdmins = require("./defaultItemsInDB/admins");
 const defaultItems = require("./defaultItemsInDB/items");
 const defaultOrders = require("./defaultItemsInDB/orders");
 const items = require("./defaultItemsInDB/items");
+const collab = require("./models/collab");
 
 // const MongoURI = 'mongodb://127.0.0.1:27017/techsolution';
 const MongoURI = process.env.MONGO_URI;
@@ -261,7 +262,9 @@ app.get("/admin", isAuth, function (req, res) {
         res.redirect('/');
     }
 
-    Item.find({})
+    // console.log(req.session.user);
+
+    Item.find({ college: req.session.user.name})
         .then(function (itemList) {
             Order.find({})
                 .then((orderList) => {
@@ -395,6 +398,17 @@ app.post("/admin/projects/delete", function (req, res) {
         .then((item) => {
             fs.unlinkSync(`./public/img/${item.image.data}`);
             console.log("Successfully deleted the Item.");
+
+            Collab.deleteMany({ item_id })
+                .then((collabs) => {
+                    for(let collab of collabs){
+                        console.log('Deleted : ', collab._id);
+                    }
+                    console.log("Successfully deleted collabs after deleting items.");
+                })
+                .catch((err) => {
+                    console.log('Error deleting collab items after deleting items.');
+                });
         })
         .catch((err) => {
             console.log("Error deleting Item : " + err);
@@ -416,55 +430,147 @@ app.post("/alogout", function (req, res) {
     res.redirect("/alogin");
 });
 
-app.get("/projects/:projectid", function (req, res) {
+app.get("/projects/:projectid", async function (req, res) {
     const reqTitle = req.params.projectid;
-    console.log(reqTitle);
+    // const message = req.query.message;
+    let collabMembers = [];
 
-    Item.findOne({ _id: reqTitle })
-        .then((foundItem) => {
-            // if (_.lowerCase(foundItem.name) === _.lowerCase(reqTitle)) {
-            if (foundItem) {
-                console.log("Project title match found.");
-                res.render("project", { title: "Page not found.", message: "", item: foundItem });
-            } else {
-                console.log("project title match not found.");
-                res.render("project", { title: "Page not found.", message: "please try again later. Try to contact a developer.Search with other parameters.", item: null });
+    try {
+        // Find the project by ID, populate the members
+        const foundItem = await Item.findById(reqTitle);
+
+        if (!foundItem || foundItem.length === 0) {
+            console.log("Project title match not found.");
+            res.render("project", { title: "items not found.", message: "Please try again later. Try to contact a developer. Search with other parameters.", item: null });
+        }
+
+        try {
+            const foundCollabs = await Collab.find({ item_id: foundItem._id });
+
+            if (!foundCollabs || foundCollabs.length === 0) {
+                console.log("Project collab members not found.");
+                res.render("project", { title: "collab members not found.", message: "Please try again later. Try to contact a developer. Search with other parameters.", item: null });
             }
-        })
-        .catch((err) => {
-            console.log("Error finding project by name.... : " + err);
-        });
 
-});
+            for (let collab of foundCollabs) {
+                const foundMembers = await User.find({ _id: collab.student_id });
 
-app.get("/admin/projects/:projectid", function (req, res) {
-    const reqTitle = req.params.projectid;
-    const message = req.query.message;
-
-    // const projectObjectId = new mongoose.Types.ObjectId(reqTitle);
-
-    Item.findOne({ _id: reqTitle })
-        .then((foundItem) => {
-            if (foundItem) {
-                // if (_.lowerCase(foundItem.name) === _.lowerCase(reqTitle)) {
-                if (foundItem) {
-                    console.log("Project title match found.");
-                    res.render("ediproject", { title: "Page found.", message, item: foundItem });
-                    // res.render("ediproject", { title: "Page not found.", message: "", item: foundItem });
-                } else {
-                    console.log("project title match not found.");
-                    res.render("ediproject", { title: "Page not found.", message: "please try again later. Try to contact a developer.Search with other parameters.", item: null });
+                if (!foundMembers || foundMembers.length === 0) {
+                    console.log("No users found for collaboration: " + grade);
+                    continue;
                 }
+
+                collabMembers.push(...foundMembers);
+            }
+
+            if (collabMembers.length > 0) {
+                console.log("collab members is ready");
+                res.render("project", { title: "collab members not found.", message: "", item: foundItem, members: collabMembers });
             } else {
-                console.log("No project found.");
-                res.render("ediproject", { title: "Page not found.", message: "Project not found.", item: null });
+                console.log("No collab members found for the given project and collaborations.");
+                return res.redirect('/home');
+            }
+
+        } catch (err) {
+            console.log("Error finding collab members by proj ID: " + err);
+            res.status(500).send("Internal Server Error");
+        }
+
+    } catch (err) {
+        console.log("Error finding project by ID: " + err);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+app.get("/admin/projects/:projectid", async function (req, res) {
+    const reqTitle = req.params.projectid;
+    // const message = req.query.message;
+    let collabMembers = [];
+
+    try {
+        // Find the project by ID, populate the members
+        const foundItem = await Item.findById(reqTitle);
+
+        if (!foundItem || foundItem.length === 0) {
+            console.log("Project title match not found.");
+            res.render("ediproject", { title: "items not found.", message: "Please try again later. Try to contact a developer. Search with other parameters.", item: null });
+        }
+
+        try {
+            const foundCollabs = await Collab.find({ item_id: foundItem._id });
+
+            if (!foundCollabs || foundCollabs.length === 0) {
+                console.log("Project collab members not found.");
+                res.render("ediproject", { title: "collab members not found.", message: "Please try again later. Try to contact a developer. Search with other parameters.", item: null });
+            }
+
+            for (let collab of foundCollabs) {
+                const foundMembers = await User.find({ _id: collab.student_id });
+
+                if (!foundMembers || foundMembers.length === 0) {
+                    console.log("No users found for collaboration: " + grade);
+                    continue;
+                }
+
+                collabMembers.push(...foundMembers);
+            }
+
+            if (collabMembers.length > 0) {
+                console.log("collab members is ready");
+                res.render("ediproject", { title: "collab members not found.", message: "", item: foundItem, members: collabMembers });
+            } else {
+                console.log("No collab members found for the given project and collaborations.");
+                return res.redirect('/admin');
+            }
+
+        } catch (err) {
+            console.log("Error finding collab members by proj ID: " + err);
+            res.status(500).send("Internal Server Error");
+        }
+
+    } catch (err) {
+        console.log("Error finding project by ID: " + err);
+        res.status(500).send("Internal Server Error");
+    }
+});
+
+app.post("/addcollaborator", function (req, res) {
+    const itemID = req.body.item_id;
+    const collabusn = req.body.collabusn;
+
+    Item.findOne({ _id: itemID })
+        .then((foundItem) => {
+            if (!foundItem) {
+                console.log("Item not found for addcollab.");
+            } else {
+                console.log("item found for addcollab.");
+                console.log(foundItem, collabusn);
+                addCollab(foundItem, collabusn);
             }
         })
         .catch((err) => {
-            console.log("Error finding project by name: " + err);
+            console.log("Error finding item for addCollab. ", err);
         });
+
+    res.redirect('/admin/projects/' + itemID);
 });
 
+app.post('/deletecollaborator', function (req, res) {
+    const collabID = req.body.collab_id;
+    const itemID = req.body.item_id;
+
+    console.log(collabID, itemID);
+
+    Collab.deleteOne({ student_id: collabID, item_id: itemID })
+        .then(() => {
+            console.log("Collaboration Deleted.");
+        })
+        .catch((err) => {
+            console.log("Error deleting collaboration.", err);
+        });
+
+    res.redirect("/admin/projects/" + itemID);
+});
 
 app.post("/editproject", upload, function (req, res) {
     const itemID = req.body.item_id;
@@ -709,7 +815,7 @@ app.post('/subject', function (req, res) {
         })
 })
 
-app.post('/college', function(req, res){
+app.post('/college', function (req, res) {
     const college = req.body.college;
 
     Item.find({ college })
