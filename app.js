@@ -262,7 +262,9 @@ app.get("/admin", isAuth, function (req, res) {
         res.redirect('/');
     }
 
-    Item.find({})
+    // console.log(req.session.user);
+
+    Item.find({ college: req.session.user.name})
         .then(function (itemList) {
             Order.find({})
                 .then((orderList) => {
@@ -396,6 +398,17 @@ app.post("/admin/projects/delete", function (req, res) {
         .then((item) => {
             fs.unlinkSync(`./public/img/${item.image.data}`);
             console.log("Successfully deleted the Item.");
+
+            Collab.deleteMany({ item_id })
+                .then((collabs) => {
+                    for(let collab of collabs){
+                        console.log('Deleted : ', collab._id);
+                    }
+                    console.log("Successfully deleted collabs after deleting items.");
+                })
+                .catch((err) => {
+                    console.log('Error deleting collab items after deleting items.');
+                });
         })
         .catch((err) => {
             console.log("Error deleting Item : " + err);
@@ -416,30 +429,6 @@ app.post("/alogout", function (req, res) {
 
     res.redirect("/alogin");
 });
-
-// app.get("/projects/:projectid", function (req, res) {
-//     const reqTitle = req.params.projectid;
-//     console.log(reqTitle);
-
-//     Item.findOne({ _id: reqTitle })
-//         .then((foundItem) => {
-//             // if (_.lowerCase(foundItem.name) === _.lowerCase(reqTitle)) {
-//             if (foundItem) {
-//                 console.log("Project title match found.");
-
-                
-
-//                 res.render("project", { title: "Page not found.", message: "", item: foundItem });
-//             } else {
-//                 console.log("project title match not found.");
-//                 res.render("project", { title: "Page not found.", message: "please try again later. Try to contact a developer.Search with other parameters.", item: null });
-//             }
-//         })
-//         .catch((err) => {
-//             console.log("Error finding project by name.... : " + err);
-//         });
-
-// });
 
 app.get("/projects/:projectid", async function (req, res) {
     const reqTitle = req.params.projectid;
